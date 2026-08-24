@@ -1,20 +1,1509 @@
-<script>
-const API_URL = "https://asap-marketplace-api.onrender.com";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-let cart = JSON.parse(localStorage.getItem("asap_cart") || "[]");
-let authToken = localStorage.getItem("asap_token") || "";
-let currentUser = JSON.parse(localStorage.getItem("asap_user") || "null");
+  <title>ASAP Marketplace</title>
+
+  <meta
+    name="description"
+    content="ASAP Marketplace - Fabrics, Aso Ebi and fashion marketplace."
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f5f1;
+      color: #171717;
+      padding-bottom: 80px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #111;
+      color: white;
+      padding: 14px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .logo span {
+      color: #d4a017;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: #292929;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .hero {
+      padding: 50px 5%;
+      background: linear-gradient(135deg, #17130e, #3a2913);
+      color: white;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 8vw, 60px);
+      line-height: 1.05;
+      margin-bottom: 15px;
+    }
+
+    .hero h1 span {
+      color: #e0b52f;
+    }
+
+    .hero p {
+      color: #ddd;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .search {
+      background: white;
+      padding: 7px;
+      border-radius: 14px;
+      display: flex;
+      max-width: 650px;
+      margin: auto;
+    }
+
+    .search input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      padding: 13px;
+    }
+
+    .search button {
+      background: #d4a017;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    section {
+      padding: 35px 0;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .section-title h2 {
+      font-size: 23px;
+    }
+
+    .view-all {
+      background: none;
+      color: #a87900;
+      font-weight: bold;
+    }
+
+    .categories {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .category {
+      min-width: 100px;
+      padding: 15px 10px;
+      background: white;
+      border-radius: 14px;
+      text-align: center;
+      box-shadow: 0 3px 12px rgba(0,0,0,.06);
+    }
+
+    .category .emoji {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 7px;
+    }
+
+    .events {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .event {
+      min-height: 140px;
+      padding: 20px;
+      border-radius: 18px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: linear-gradient(135deg, #5b4521, #15110c);
+    }
+
+    .event:nth-child(2) {
+      background: linear-gradient(135deg, #742b40, #1c0e13);
+    }
+
+    .event:nth-child(3) {
+      background: linear-gradient(135deg, #315d51, #0e201c);
+    }
+
+    .event:nth-child(4) {
+      background: linear-gradient(135deg, #594c75, #18121f);
+    }
+
+    .event:nth-child(5) {
+      background: linear-gradient(135deg, #31547a, #101b28);
+    }
+
+    .event:nth-child(6) {
+      background: linear-gradient(135deg, #704b2c, #1e130b);
+    }
+
+    .event h3 {
+      margin-bottom: 5px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 17px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,.07);
+    }
+
+    .product-image {
+      height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      background: linear-gradient(135deg, #c7a95b, #4b3515);
+    }
+
+    .product:nth-child(2) .product-image {
+      background: linear-gradient(135deg, #e4d7c2, #604f38);
+    }
+
+    .product:nth-child(3) .product-image {
+      background: linear-gradient(135deg, #51365b, #d7b9d9);
+    }
+
+    .product:nth-child(4) .product-image {
+      background: linear-gradient(135deg, #172e42, #88a6bd);
+    }
+
+    .product-info {
+      padding: 14px;
+    }
+
+    .product-info h3 {
+      margin-bottom: 7px;
+    }
+
+    .rating {
+      color: #d09b00;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .unit {
+      color: #777;
+      font-size: 12px;
+      font-weight: normal;
+    }
+
+    .add-cart {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px;
+      background: #111;
+      color: white;
+      border-radius: 9px;
+    }
+
+    .referral {
+      background: #111;
+      color: white;
+      border-radius: 22px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    .referral h2 {
+      color: #e0b52f;
+      margin-bottom: 10px;
+    }
+
+    .referral-code {
+      background: #292929;
+      border: 1px dashed #d4a017;
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .copy-btn {
+      background: #d4a017;
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,.7);
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 430px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #eee;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      font-size: 20px;
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .primary-btn {
+      background: #111;
+      color: white;
+    }
+
+    .secondary-btn {
+      background: #eee;
+      color: #111;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .switch button {
+      background: none;
+      color: #a87900;
+      font-weight: bold;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: #777;
+    }
+
+    .account-card {
+      text-align: center;
+      background: #f7f1df;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+
+    .avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #111;
+      color: #d4a017;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: auto auto 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 5px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 68px;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .nav-item {
+      background: none;
+      color: #666;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .nav-item span {
+      display: block;
+      font-size: 21px;
+      margin-bottom: 3px;
+    }
+
+    .nav-item.active {
+      color: #a87900;
+      font-weight: bold;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 85px;
+      transform: translateX(-50%) translateY(20px);
+      background: #111;
+      color: white;
+      padding: 13px 18px;
+      border-radius: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .3s;
+      z-index: 800;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media(max-width:800px) {
+
+      .products {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .events {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .referral {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media(max-width:500px) {
+
+      .product-image {
+        height: 150px;
+      }
+
+      .event {
+        min-height: 120px;
+        padding: 14px;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header class="header">
+
+  <div class="logo">
+    ASAP<span>.</span>
+  </div>
+
+  <div class="header-actions">
+
+    <button
+      class="icon-btn"
+      onclick="openModal('loginModal')">
+      👤
+    </button>
+
+    <button
+      class="icon-btn"
+      onclick="openCart()">
+      🛒
+    </button>
+
+  </div>
+
+</header>
+
+
+<main>
+
+<section class="hero">
+
+  <div class="hero-content">
+
+    <h1>
+      Find Your <span>Fabric.</span><br>
+      Create Your Style.
+    </h1>
+
+    <p>
+      Shop fabrics, Aso Ebi, fashion styles and
+      event collections from trusted sellers.
+    </p>
+
+    <div class="search">
+
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Search fabrics, Aso Ebi, styles...">
+
+      <button onclick="searchProducts()">
+        Search
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section>
+
+<div class="container">
+
+<div class="section-title">
+  <h2>Shop Categories</h2>
+</div>
+
+<div class="categories">
+
+<div class="category">
+  <span class="emoji">💍</span>
+  Aso Ebi
+</div>
+
+<div class="category">
+  <span class="emoji">🧵</span>
+  Ankara
+</div>
+
+<div class="category">
+  <span class="emoji">✨</span>
+  Lace
+</div>
+
+<div class="category">
+  <span class="emoji">👔</span>
+  Atiku
+</div>
+
+<div class="category">
+  <span class="emoji">👗</span>
+  George
+</div>
+
+<div class="category">
+  <span class="emoji">💎</span>
+  Embroidery
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section>
+
+<div class="container">
+
+<div class="section-title">
+  <h2>Shop by Event</h2>
+</div>
+
+<div class="events">
+
+<div class="event">
+  <h3>💍 Wedding</h3>
+  <p>Aso Ebi collections</p>
+</div>
+
+<div class="event">
+  <h3>👰 Bridal Train</h3>
+  <p>Elegant fabrics</p>
+</div>
+
+<div class="event">
+  <h3>👶 Naming Ceremony</h3>
+  <p>Family collections</p>
+</div>
+
+<div class="event">
+  <h3>🎂 Birthday</h3>
+  <p>Party fabrics</p>
+</div>
+
+<div class="event">
+  <h3>🎓 Graduation</h3>
+  <p>Celebrate in style</p>
+</div>
+
+<div class="event">
+  <h3>🥳 Party</h3>
+  <p>Trending styles</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section>
+
+<div class="container">
+
+<div class="section-title">
+  <h2>🔥 Trending Aso Ebi</h2>
+</div>
+
+<div class="products" id="products">
+
+
+<article
+  class="product"
+  data-name="premium gold lace aso ebi">
+
+<div class="product-image">
+  ✨
+</div>
+
+<div class="product-info">
+
+<h3>Premium Gold Lace</h3>
+
+<div class="rating">
+  ★★★★★ 4.9
+</div>
+
+<div class="price">
+  ₦25,000
+  <span class="unit">
+    / package
+  </span>
+</div>
+
+<button
+  class="add-cart"
+  onclick="addToCart('Premium Gold Lace',25000)">
+  Add to Cart
+</button>
+
+</div>
+
+</article>
+
+
+<article
+  class="product"
+  data-name="luxury cream aso ebi">
+
+<div class="product-image">
+  🤍
+</div>
+
+<div class="product-info">
+
+<h3>Luxury Cream Aso Ebi</h3>
+
+<div class="rating">
+  ★★★★★ 4.8
+</div>
+
+<div class="price">
+  ₦18,500
+  <span class="unit">
+    / package
+  </span>
+</div>
+
+<button
+  class="add-cart"
+  onclick="addToCart('Luxury Cream Aso Ebi',18500)">
+  Add to Cart
+</button>
+
+</div>
+
+</article>
+
+
+<article
+  class="product"
+  data-name="purple beaded lace">
+
+<div class="product-image">
+  💜
+</div>
+
+<div class="product-info">
+
+<h3>Purple Beaded Lace</h3>
+
+<div class="rating">
+  ★★★★★ 4.7
+</div>
+
+<div class="price">
+  ₦32,000
+  <span class="unit">
+    / package
+  </span>
+</div>
+
+<button
+  class="add-cart"
+  onclick="addToCart('Purple Beaded Lace',32000)">
+  Add to Cart
+</button>
+
+</div>
+
+</article>
+
+
+<article
+  class="product"
+  data-name="royal blue lace">
+
+<div class="product-image">
+  💙
+</div>
+
+<div class="product-info">
+
+<h3>Royal Blue Lace</h3>
+
+<div class="rating">
+  ★★★★★ 4.9
+</div>
+
+<div class="price">
+  ₦28,500
+  <span class="unit">
+    / package
+  </span>
+</div>
+
+<button
+  class="add-cart"
+  onclick="addToCart('Royal Blue Lace',28500)">
+  Add to Cart
+</button>
+
+</div>
+
+</article>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+<section>
+
+<div class="container">
+
+<div class="referral">
+
+<div>
+
+<h2>
+  🎁 Refer & Earn
+</h2>
+
+<h3>
+  Invite friends. Earn ASAP rewards.
+</h3>
+
+<p style="margin-top:10px;color:#ccc;">
+  Share your referral link with friends.
+  Rewards can be credited after qualifying purchases.
+</p>
+
+</div>
+
+
+<div>
+
+<p style="margin-bottom:8px;">
+  Your referral code
+</p>
+
+<div class="referral-code">
+
+<strong id="referralCode">
+  ASAP-MELLOW7X
+</strong>
+
+<button
+  class="copy-btn"
+  onclick="copyReferral()">
+  Copy
+</button>
+
+</div>
+
+
+<button
+  class="primary-btn"
+  onclick="shareReferral()">
+  Share Referral Link
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- LOGIN -->
+
+<div class="modal" id="loginModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('loginModal')">
+  ×
+</button>
+
+<h2>
+  Welcome Back 👋
+</h2>
+
+<form onsubmit="login(event)">
+
+<div class="form-group">
+
+<label>
+  Email or Phone
+</label>
+
+<input
+  id="loginIdentity"
+  required
+  placeholder="Enter email or phone">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Password
+</label>
+
+<input
+  id="loginPassword"
+  type="password"
+  required
+  placeholder="Enter password">
+
+</div>
+
+
+<button class="primary-btn">
+  Login
+</button>
+
+</form>
+
+
+<div class="switch">
+
+Don't have an account?
+
+<button onclick="switchToSignup()">
+  Create New Account
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- SIGNUP -->
+
+<div class="modal" id="signupModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('signupModal')">
+  ×
+</button>
+
+<h2>
+  Create ASAP Account
+</h2>
+
+<form onsubmit="signup(event)">
+
+<div class="form-group">
+
+<label>
+  Full Name
+</label>
+
+<input
+  id="signupName"
+  required
+  placeholder="Your full name">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Phone Number
+</label>
+
+<input
+  id="signupPhone"
+  type="tel"
+  required
+  placeholder="080...">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Email
+</label>
+
+<input
+  id="signupEmail"
+  type="email"
+  required
+  placeholder="you@example.com">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Password
+</label>
+
+<input
+  id="signupPassword"
+  type="password"
+  required
+  placeholder="Create password">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Referral Code
+</label>
+
+<input
+  id="signupReferral"
+  placeholder="ASAP-XXXXXX">
+
+</div>
+
+
+<button class="primary-btn">
+  Create Account
+</button>
+
+</form>
+
+
+<div class="switch">
+
+Already have an account?
+
+<button onclick="switchToLogin()">
+  Login
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CART -->
+
+<div class="modal" id="cartModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('cartModal')">
+  ×
+</button>
+
+<h2>
+  🛒 Your Cart
+</h2>
+
+<div
+  id="cartItems">
+</div>
+
+<div
+  style="display:flex;justify-content:space-between;margin:20px 0;font-weight:bold;">
+
+<span>
+  Total
+</span>
+
+<span id="cartTotal">
+  ₦0
+</span>
+
+</div>
+
+
+<button
+  class="primary-btn"
+  onclick="checkout()">
+  Proceed to Checkout
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ACCOUNT -->
+
+<div class="modal" id="accountModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('accountModal')">
+  ×
+</button>
+
+<div class="account-card">
+
+<div class="avatar">
+  👤
+</div>
+
+<h2 id="accountName">
+  Guest
+</h2>
+
+<p id="accountEmail">
+  Login to access your account
+</p>
+
+</div>
+
+
+<div class="dashboard-grid">
+
+<div class="stat">
+  Orders
+  <strong>0</strong>
+</div>
+
+<div class="stat">
+  Saved
+  <strong>0</strong>
+</div>
+
+<div class="stat">
+  Referral Rewards
+  <strong>₦0</strong>
+</div>
+
+<div class="stat">
+  Wallet
+  <strong>₦0</strong>
+</div>
+
+</div>
+
+
+<button
+  class="primary-btn"
+  onclick="openReferralDashboard()">
+  🎁 Refer & Earn
+</button>
+
+
+<button
+  class="secondary-btn"
+  onclick="openSeller()">
+  🏪 Become a Seller
+</button>
+
+
+<button
+  class="secondary-btn"
+  onclick="logout()">
+  Logout
+</button>
+
+</div>
+
+</div>
+
+
+<!-- REFERRAL -->
+
+<div class="modal" id="referralModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('referralModal')">
+  ×
+</button>
+
+<h2>
+  🎁 Refer & Earn
+</h2>
+
+<div class="account-card">
+
+<h3>
+  Referral Balance
+</h3>
+
+<strong
+  id="referralBalance"
+  style="font-size:30px;">
+  ₦0
+</strong>
+
+</div>
+
+
+<div class="dashboard-grid">
+
+<div class="stat">
+  Friends Referred
+  <strong id="referralCount">
+    0
+  </strong>
+</div>
+
+<div class="stat">
+  Completed Orders
+  <strong>
+    0
+  </strong>
+</div>
+
+</div>
+
+
+<p style="margin:20px 0 8px;">
+  Your referral code
+</p>
+
+
+<div
+  class="referral-code"
+  style="background:#f5f5f5;color:#111;">
+
+<strong id="dashboardReferralCode">
+  ASAP-MELLOW7X
+</strong>
+
+<button
+  class="copy-btn"
+  onclick="copyReferral()">
+  Copy
+</button>
+
+</div>
+
+
+<button
+  class="primary-btn"
+  onclick="shareReferral()">
+  Share My Referral Link
+</button>
+
+</div>
+
+</div>
+
+
+<!-- SELLER -->
+
+<div class="modal" id="sellerModal">
+
+<div class="modal-box">
+
+<button
+  class="close"
+  onclick="closeModal('sellerModal')">
+  ×
+</button>
+
+<h2>
+  🏪 Become an ASAP Seller
+</h2>
+
+
+<div class="form-group">
+
+<label>
+  Business Name
+</label>
+
+<input
+  id="sellerBusiness"
+  placeholder="Your fabric business">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Business Phone
+</label>
+
+<input
+  id="sellerPhone"
+  type="tel"
+  placeholder="080...">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Business Category
+</label>
+
+<select id="sellerCategory">
+
+<option>
+  Fabric & Aso Ebi
+</option>
+
+<option>
+  Fashion
+</option>
+
+<option>
+  Accessories
+</option>
+
+<option>
+  Ready-to-Wear
+</option>
+
+</select>
+
+</div>
+
+
+<button
+  class="primary-btn"
+  onclick="sellerSubmit()">
+  Apply as Seller
+</button>
+
+</div>
+
+</div>
+
+
+<div
+  class="toast"
+  id="toast">
+</div>
+
+
+<nav class="bottom-nav">
+
+<button
+  class="nav-item active"
+  onclick="scrollHome()">
+
+<span>
+  🏠
+</span>
+
+Home
+
+</button>
+
+
+<button
+  class="nav-item"
+  onclick="scrollProducts()">
+
+<span>
+  🛍️
+</span>
+
+Shop
+
+</button>
+
+
+<button
+  class="nav-item"
+  onclick="scrollAsoEbi()">
+
+<span>
+  💍
+</span>
+
+Aso Ebi
+
+</button>
+
+
+<button
+  class="nav-item"
+  onclick="openCart()">
+
+<span>
+  🛒
+</span>
+
+Cart
+
+</button>
+
+
+<button
+  class="nav-item"
+  onclick="openAccount()">
+
+<span>
+  👤
+</span>
+
+Account
+
+</button>
+
+</nav>
+
+
+<script>
+
+const API_URL =
+  "https://asap-marketplace-api.onrender.com";
+
+let cart =
+  JSON.parse(
+    localStorage.getItem("asap_cart") || "[]"
+  );
+
+let authToken =
+  localStorage.getItem("asap_token") || "";
+
+let currentUser =
+  JSON.parse(
+    localStorage.getItem("asap_user") || "null"
+  );
+
 
 function openModal(id) {
-  document.getElementById(id).classList.add("active");
+
+  const modal =
+    document.getElementById(id);
+
+  if (modal)
+    modal.classList.add("active");
+
 }
+
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove("active");
+
+  const modal =
+    document.getElementById(id);
+
+  if (modal)
+    modal.classList.remove("active");
+
 }
 
+
 function showToast(message) {
-  const toast = document.getElementById("toast");
+
+  const toast =
+    document.getElementById("toast");
 
   if (!toast) {
     alert(message);
@@ -22,52 +1511,78 @@ function showToast(message) {
   }
 
   toast.textContent = message;
+
   toast.classList.add("show");
 
   setTimeout(() => {
+
     toast.classList.remove("show");
+
   }, 2500);
+
 }
 
-/* =========================
-   AUTH
-========================= */
+
+/* AUTH */
 
 async function login(event) {
+
   event.preventDefault();
 
   const identity =
-    document.getElementById("loginIdentity").value.trim();
+    document.getElementById(
+      "loginIdentity"
+    ).value.trim();
 
   const password =
-    document.getElementById("loginPassword").value;
+    document.getElementById(
+      "loginPassword"
+    ).value;
 
   try {
-    const response = await fetch(
-      `${API_URL}/api/auth/login`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          identity,
-          password
-        })
-      }
-    );
 
-    const data = await response.json();
+    const response =
+      await fetch(
+        `${API_URL}/api/auth/login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            identity,
+            password
+          })
+        }
+      );
+
+    const data =
+      await response.json();
 
     if (!response.ok || !data.success) {
-      showToast(data.message || "Login failed.");
+
+      showToast(
+        data.message ||
+        "Login failed."
+      );
+
       return;
     }
 
-    authToken = data.token;
-    currentUser = data.user;
+    authToken =
+      data.token;
 
-    localStorage.setItem("asap_token", authToken);
+    currentUser =
+      data.user;
+
+    localStorage.setItem(
+      "asap_token",
+      authToken
+    );
+
     localStorage.setItem(
       "asap_user",
       JSON.stringify(currentUser)
@@ -77,64 +1592,99 @@ async function login(event) {
 
     updateAccountUI();
 
-    showToast("Login successful 🎉");
+    showToast(
+      "Login successful 🎉"
+    );
 
   } catch (error) {
+
     console.error(error);
-    showToast("Unable to connect to ASAP server.");
+
+    showToast(
+      "Unable to connect to ASAP server."
+    );
+
   }
+
 }
 
 
 async function signup(event) {
+
   event.preventDefault();
 
   const name =
-    document.getElementById("signupName").value.trim();
+    document.getElementById(
+      "signupName"
+    ).value.trim();
 
   const phone =
-    document.getElementById("signupPhone").value.trim();
+    document.getElementById(
+      "signupPhone"
+    ).value.trim();
 
   const email =
-    document.getElementById("signupEmail").value.trim();
+    document.getElementById(
+      "signupEmail"
+    ).value.trim();
 
   const password =
-    document.getElementById("signupPassword").value;
+    document.getElementById(
+      "signupPassword"
+    ).value;
 
   const referral_code =
-    document.getElementById("signupReferral").value
-      .trim()
-      .toUpperCase();
+    document.getElementById(
+      "signupReferral"
+    ).value.trim().toUpperCase();
 
   try {
-    const response = await fetch(
-      `${API_URL}/api/auth/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          password,
-          referral_code
-        })
-      }
-    );
 
-    const data = await response.json();
+    const response =
+      await fetch(
+        `${API_URL}/api/auth/register`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            name,
+            phone,
+            email,
+            password,
+            referral_code
+          })
+        }
+      );
+
+    const data =
+      await response.json();
 
     if (!response.ok || !data.success) {
-      showToast(data.message || "Registration failed.");
+
+      showToast(
+        data.message ||
+        "Registration failed."
+      );
+
       return;
     }
 
-    authToken = data.token;
-    currentUser = data.user;
+    authToken =
+      data.token;
 
-    localStorage.setItem("asap_token", authToken);
+    currentUser =
+      data.user;
+
+    localStorage.setItem(
+      "asap_token",
+      authToken
+    );
+
     localStorage.setItem(
       "asap_user",
       JSON.stringify(currentUser)
@@ -144,74 +1694,89 @@ async function signup(event) {
 
     updateAccountUI();
 
-    showToast("Account created successfully 🎉");
+    showToast(
+      "Account created successfully 🎉"
+    );
 
   } catch (error) {
+
     console.error(error);
-    showToast("Unable to connect to ASAP server.");
+
+    showToast(
+      "Unable to connect to ASAP server."
+    );
+
   }
+
 }
 
 
-/* =========================
-   ACCOUNT
-========================= */
-
 function updateAccountUI() {
 
-  const nameElement =
-    document.getElementById("accountName");
+  const name =
+    document.getElementById(
+      "accountName"
+    );
 
-  const emailElement =
-    document.getElementById("accountEmail");
+  const email =
+    document.getElementById(
+      "accountEmail"
+    );
 
   if (!currentUser) {
-    if (nameElement)
-      nameElement.textContent = "Guest";
 
-    if (emailElement)
-      emailElement.textContent =
+    if (name)
+      name.textContent =
+        "Guest";
+
+    if (email)
+      email.textContent =
         "Login to access your account";
 
     return;
   }
 
-  if (nameElement)
-    nameElement.textContent = currentUser.name;
+  if (name)
+    name.textContent =
+      currentUser.name;
 
-  if (emailElement)
-    emailElement.textContent = currentUser.email;
+  if (email)
+    email.textContent =
+      currentUser.email;
+
 }
 
 
 async function loadAccount() {
 
-  if (!authToken) {
-    updateAccountUI();
+  if (!authToken)
     return;
-  }
 
   try {
 
-    const response = await fetch(
-      `${API_URL}/api/auth/me`,
-      {
-        headers: {
-          "Authorization":
-            `Bearer ${authToken}`
+    const response =
+      await fetch(
+        `${API_URL}/api/auth/me`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${authToken}`
+          }
         }
-      }
-    );
+      );
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    if (!response.ok || !data.success) {
+    if (!response.ok ||
+        !data.success) {
 
       logout(false);
       return;
     }
 
-    currentUser = data.user;
+    currentUser =
+      data.user;
 
     localStorage.setItem(
       "asap_user",
@@ -221,8 +1786,11 @@ async function loadAccount() {
     updateAccountUI();
 
   } catch (error) {
+
     console.error(error);
+
   }
+
 }
 
 
@@ -231,126 +1799,193 @@ function logout(showMessage = true) {
   authToken = "";
   currentUser = null;
 
-  localStorage.removeItem("asap_token");
-  localStorage.removeItem("asap_user");
+  localStorage.removeItem(
+    "asap_token"
+  );
+
+  localStorage.removeItem(
+    "asap_user"
+  );
 
   updateAccountUI();
 
+  closeModal("accountModal");
+
   if (showMessage)
-    showToast("You have been logged out.");
+    showToast(
+      "Logged out successfully."
+    );
+
 }
 
 
-/* =========================
-   REFERRALS
-========================= */
+/* REFERRALS */
 
 async function loadReferrals() {
 
   if (!authToken) {
-    showToast("Please login first.");
+
+    closeModal("referralModal");
+
     openModal("loginModal");
+
+    showToast(
+      "Please login first."
+    );
+
     return;
   }
 
   try {
 
-    const response = await fetch(
-      `${API_URL}/api/referrals`,
-      {
-        headers: {
-          "Authorization":
-            `Bearer ${authToken}`
+    const response =
+      await fetch(
+        `${API_URL}/api/referrals`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${authToken}`
+          }
         }
-      }
-    );
+      );
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
-    if (!response.ok || !data.success) {
-      showToast(data.message || "Unable to load referrals.");
+    if (!response.ok ||
+        !data.success) {
+
+      showToast(
+        data.message ||
+        "Unable to load referrals."
+      );
+
       return;
     }
 
-    const codeElements =
-      document.querySelectorAll(
-        "#referralCode"
+    document
+      .querySelectorAll(
+        "#referralCode,#dashboardReferralCode"
+      )
+      .forEach(element => {
+
+        element.textContent =
+          data.referral_code;
+
+      });
+
+
+    const balance =
+      document.getElementById(
+        "referralBalance"
       );
 
-    codeElements.forEach(element => {
-      element.textContent =
-        data.referral_code;
-    });
+    const count =
+      document.getElementById(
+        "referralCount"
+      );
 
-    showToast(
-      `${data.total_referrals} referral(s) found.`
-    );
+    if (balance)
+      balance.textContent =
+        "₦" +
+        Number(
+          data.balance || 0
+        ).toLocaleString();
+
+    if (count)
+      count.textContent =
+        data.total_referrals || 0;
 
   } catch (error) {
+
     console.error(error);
-    showToast("Unable to load referral information.");
+
+    showToast(
+      "Unable to load referrals."
+    );
+
   }
+
 }
 
 
-/* =========================
-   SELLER APPLICATION
-========================= */
+/* SELLER */
 
-async function submitSellerApplication() {
+async function sellerSubmit() {
 
   if (!authToken) {
-    showToast("Please login first.");
+
+    closeModal("sellerModal");
+
     openModal("loginModal");
+
+    showToast(
+      "Please login first."
+    );
+
     return;
   }
 
-  const businessName =
-    document.querySelector(
-      '#sellerModal input[placeholder="Your fabric business"]'
-    )?.value.trim();
+  const business_name =
+    document.getElementById(
+      "sellerBusiness"
+    ).value.trim();
 
   const phone =
-    document.querySelector(
-      '#sellerModal input[placeholder="080..."]'
-    )?.value.trim();
+    document.getElementById(
+      "sellerPhone"
+    ).value.trim();
 
   const category =
-    document.querySelector(
-      "#sellerModal select"
-    )?.value;
+    document.getElementById(
+      "sellerCategory"
+    ).value;
 
-  if (!businessName || !phone) {
-    showToast("Please complete the seller information.");
+  if (!business_name ||
+      !phone) {
+
+    showToast(
+      "Complete the seller information."
+    );
+
     return;
   }
 
   try {
 
-    const response = await fetch(
-      `${API_URL}/api/sellers`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization":
-            `Bearer ${authToken}`
-        },
-        body: JSON.stringify({
-          business_name: businessName,
-          phone,
-          category
-        })
-      }
-    );
+    const response =
+      await fetch(
+        `${API_URL}/api/sellers`,
+        {
+          method: "POST",
 
-    const data = await response.json();
+          headers: {
+            "Content-Type":
+              "application/json",
 
-    if (!response.ok || !data.success) {
+            Authorization:
+              `Bearer ${authToken}`
+          },
+
+          body: JSON.stringify({
+            business_name,
+            phone,
+            category
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!response.ok ||
+        !data.success) {
+
       showToast(
         data.message ||
         "Seller application failed."
       );
+
       return;
     }
 
@@ -361,64 +1996,88 @@ async function submitSellerApplication() {
     );
 
   } catch (error) {
+
     console.error(error);
-    showToast("Unable to connect to ASAP server.");
+
+    showToast(
+      "Unable to connect to server."
+    );
+
   }
+
 }
 
 
-/* =========================
-   CART
-========================= */
+/* CART */
 
 function saveCart() {
+
   localStorage.setItem(
     "asap_cart",
     JSON.stringify(cart)
   );
+
 }
 
 
 function addToCart(name, price) {
 
   const existing =
-    cart.find(item => item.name === name);
+    cart.find(
+      item =>
+        item.name === name
+    );
 
   if (existing) {
+
     existing.quantity++;
+
   } else {
+
     cart.push({
       name,
       price,
       quantity: 1
     });
+
   }
 
   saveCart();
+
   updateCart();
 
-  showToast("Added to cart 🛒");
+  showToast(
+    "Added to cart 🛒"
+  );
+
 }
 
 
 function removeCart(index) {
 
-  cart.splice(index, 1);
+  cart.splice(index,1);
 
   saveCart();
+
   updateCart();
+
 }
 
 
 function updateCart() {
 
   const container =
-    document.getElementById("cartItems");
+    document.getElementById(
+      "cartItems"
+    );
 
   const totalElement =
-    document.getElementById("cartTotal");
+    document.getElementById(
+      "cartTotal"
+    );
 
-  if (!container || !totalElement)
+  if (!container ||
+      !totalElement)
     return;
 
   if (cart.length === 0) {
@@ -426,7 +2085,8 @@ function updateCart() {
     container.innerHTML =
       '<div class="empty">Your cart is empty.</div>';
 
-    totalElement.textContent = "₦0";
+    totalElement.textContent =
+      "₦0";
 
     return;
   }
@@ -434,26 +2094,34 @@ function updateCart() {
   let total = 0;
 
   container.innerHTML =
-    cart.map((item, index) => {
+    cart.map(
+      (item,index) => {
 
-      const subtotal =
-        item.price * item.quantity;
+        const subtotal =
+          item.price *
+          item.quantity;
 
-      total += subtotal;
+        total += subtotal;
 
-      return `
+        return `
         <div class="cart-item">
 
           <div>
-            <strong>${escapeHTML(item.name)}</strong>
+            <strong>
+              ${escapeHTML(item.name)}
+            </strong>
+
             <br>
+
             <small>
-              ${item.quantity} ×
+              ${item.quantity}
+              ×
               ₦${item.price.toLocaleString()}
             </small>
           </div>
 
           <div>
+
             <strong>
               ₦${subtotal.toLocaleString()}
             </strong>
@@ -465,15 +2133,19 @@ function updateCart() {
               style="background:none;color:#b00020;font-size:12px;">
               Remove
             </button>
+
           </div>
 
         </div>
-      `;
+        `;
 
-    }).join("");
+      }
+    ).join("");
 
   totalElement.textContent =
-    "₦" + total.toLocaleString();
+    "₦" +
+    total.toLocaleString();
+
 }
 
 
@@ -481,79 +2153,95 @@ function openCart() {
 
   updateCart();
 
-  openModal("cartModal");
+  openModal(
+    "cartModal"
+  );
+
 }
 
 
-/* =========================
-   CHECKOUT PLACEHOLDER
-========================= */
+/* CHECKOUT */
 
 function checkout() {
 
-  if (cart.length === 0) {
-    showToast("Your cart is empty.");
+  if (!cart.length) {
+
+    showToast(
+      "Your cart is empty."
+    );
+
     return;
   }
 
   if (!authToken) {
+
     closeModal("cartModal");
-    showToast("Login before checkout.");
+
     openModal("loginModal");
+
+    showToast(
+      "Login before checkout."
+    );
+
     return;
   }
 
   showToast(
     "Payment gateway will be connected next."
   );
+
 }
 
 
-/* =========================
-   SEARCH
-========================= */
+/* SEARCH */
 
 function searchProducts() {
 
   const query =
-    document.getElementById("searchInput")
-      .value
-      .toLowerCase()
-      .trim();
+    document.getElementById(
+      "searchInput"
+    ).value
+    .toLowerCase()
+    .trim();
 
-  const products =
-    document.querySelectorAll(".product");
+  document
+    .querySelectorAll(
+      ".product"
+    )
+    .forEach(product => {
 
-  products.forEach(product => {
+      const name =
+        product.dataset.name
+          .toLowerCase();
 
-    const name =
-      product.dataset.name
-        .toLowerCase();
+      product.style.display =
+        !query ||
+        name.includes(query)
+          ? ""
+          : "none";
 
-    product.style.display =
-      !query ||
-      name.includes(query)
-        ? ""
-        : "none";
-  });
+    });
 
   scrollProducts();
+
 }
 
 
-/* =========================
-   REFERRAL SHARING
-========================= */
+/* REFERRAL */
 
 function getReferralCode() {
 
-  if (currentUser &&
-      currentUser.referral_code) {
+  if (
+    currentUser &&
+    currentUser.referral_code
+  ) {
 
     return currentUser.referral_code;
+
   }
 
   return "ASAP-MELLOW7X";
+
 }
 
 
@@ -566,26 +2254,24 @@ function getReferralLink() {
       getReferralCode()
     )
   );
+
 }
 
 
 function copyReferral() {
 
-  const code =
-    getReferralCode();
-
   navigator.clipboard
-    .writeText(code)
+    .writeText(
+      getReferralCode()
+    )
     .then(() => {
+
       showToast(
         "Referral code copied!"
       );
-    })
-    .catch(() => {
-      showToast(
-        "Unable to copy code."
-      );
+
     });
+
 }
 
 
@@ -594,147 +2280,158 @@ async function shareReferral() {
   const link =
     getReferralLink();
 
-  const text =
-    "Join ASAP Marketplace and shop fabrics & Aso Ebi.";
-
-  if (navigator.share) {
+  if (
+    navigator.share
+  ) {
 
     try {
 
       await navigator.share({
-        title: "ASAP Marketplace",
-        text,
+        title:
+          "ASAP Marketplace",
+
+        text:
+          "Join ASAP Marketplace and shop fabrics & Aso Ebi.",
+
         url: link
       });
 
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
 
   } else {
 
     navigator.clipboard
       .writeText(link)
       .then(() => {
+
         showToast(
           "Referral link copied!"
         );
+
       });
+
   }
+
 }
 
 
-/* =========================
-   NAVIGATION
-========================= */
+/* NAVIGATION */
 
 function scrollHome() {
 
   window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+    top:0,
+    behavior:"smooth"
   });
+
 }
 
 
 function scrollProducts() {
 
   const element =
-    document.getElementById("products");
+    document.getElementById(
+      "products"
+    );
 
   if (element) {
 
     element.scrollIntoView({
-      behavior: "smooth"
+      behavior:"smooth"
     });
+
   }
+
 }
 
 
 function scrollAsoEbi() {
 
   scrollProducts();
+
 }
 
 
 function openAccount() {
 
-  openModal("accountModal");
-
   updateAccountUI();
+
+  openModal(
+    "accountModal"
+  );
+
 }
 
 
-/* =========================
-   AUTH MODAL SWITCHING
-========================= */
+/* MODALS */
 
 function switchToSignup() {
 
-  closeModal("loginModal");
+  closeModal(
+    "loginModal"
+  );
 
-  openModal("signupModal");
+  openModal(
+    "signupModal"
+  );
+
 }
 
 
 function switchToLogin() {
 
-  closeModal("signupModal");
-
-  openModal("loginModal");
-}
-
-
-function forgotPassword() {
-
-  showToast(
-    "Password recovery will be added next."
+  closeModal(
+    "signupModal"
   );
+
+  openModal(
+    "loginModal"
+  );
+
 }
 
-
-/* =========================
-   SELLER
-========================= */
 
 function openSeller() {
 
   if (!authToken) {
 
-    closeModal("accountModal");
+    closeModal(
+      "accountModal"
+    );
 
-    openModal("loginModal");
+    openModal(
+      "loginModal"
+    );
 
     showToast(
-      "Login to become an ASAP seller."
+      "Login to become a seller."
     );
 
     return;
   }
 
-  closeModal("accountModal");
+  closeModal(
+    "accountModal"
+  );
 
-  openModal("sellerModal");
+  openModal(
+    "sellerModal"
+  );
+
 }
 
-
-function sellerSubmit() {
-
-  submitSellerApplication();
-}
-
-
-/* =========================
-   REFERRAL DASHBOARD
-========================= */
 
 async function openReferralDashboard() {
 
   if (!authToken) {
 
-    closeModal("accountModal");
+    closeModal(
+      "accountModal"
+    );
 
-    openModal("loginModal");
+    openModal(
+      "loginModal"
+    );
 
     showToast(
       "Login to access referrals."
@@ -743,32 +2440,34 @@ async function openReferralDashboard() {
     return;
   }
 
-  closeModal("accountModal");
+  closeModal(
+    "accountModal"
+  );
 
-  openModal("referralModal");
+  openModal(
+    "referralModal"
+  );
 
   await loadReferrals();
+
 }
 
 
-/* =========================
-   SECURITY
-========================= */
+/* SECURITY */
 
 function escapeHTML(value) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
 }
 
 
-/* =========================
-   REFERRAL URL DETECTION
-========================= */
+/* REFERRAL URL */
 
 function detectReferralCode() {
 
@@ -787,34 +2486,37 @@ function detectReferralCode() {
         "signupReferral"
       );
 
-    if (input) {
+    if (input)
       input.value =
         referral.toUpperCase();
-    }
 
-    localStorage.setItem(
-      "asap_referral",
-      referral.toUpperCase()
-    );
   }
+
 }
 
 
-/* =========================
-   INITIALIZATION
-========================= */
+/* INITIALIZE */
 
-document.addEventListener("DOMContentLoaded", function () {
-  try {
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
     updateCart();
+
     updateAccountUI();
+
     detectReferralCode();
 
     if (authToken) {
+
       loadAccount();
+
     }
-  } catch (error) {
-    console.error("ASAP initialization error:", error);
+
   }
-});
+);
+
 </script>
+
+</body>
+</html>
