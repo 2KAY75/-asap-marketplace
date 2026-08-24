@@ -804,20 +804,17 @@ function detectReferralCode() {
    INITIALIZATION
 ========================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
+document.addEventListener("DOMContentLoaded", function () {
+  try {
     updateCart();
-
     updateAccountUI();
-
     detectReferralCode();
 
     if (authToken) {
       loadAccount();
     }
-
+  } catch (error) {
+    console.error("ASAP initialization error:", error);
   }
-);
+});
 </script>
