@@ -595,29 +595,88 @@ def referrals():
     user = get_current_user()
 
     if not user:
-
         return jsonify({
             "success": False,
             "message": "Login required."
         }), 401
 
+    # Existing referral records
     records = Referral.query.filter_by(
         referrer_id=user.id
     ).order_by(
         Referral.created_at.desc()
     ).all()
 
+    # Find users who registered using
+    # this user's referral code.
+    referred_users = User.query.filter_by(
+        referred_by=user.referral_code
+    ).all()
+
+    # Prevent duplicate referral records
+    existing_user_ids = {
+        r.referred_user_id
+        for r in records
+    }
+
+    for referred_user in referred_users:
+
+        if referred_user.id not in existing_user_ids:
+
+            referral = Referral(
+                referrer_id=user.id,
+                referred_user_id=referred_user.id,
+                reward=0,
+                status="pending"
+            )
+
+            db.session.add(referral)
+            records.append(referral)
+
+            existing_user_ids.add(
+                referred_user.id
+            )
+
+    db.session.commit()
+
     return jsonify({
         "success": True,
         "referral_code": user.referral_code,
-        "balance": user.referral_balance,
+        "balance": user.referral_balance or 0,    return jsonify({
+        "success": True,
+        "referral_code": user.referral_code,
+        "balance": user.referral_balance or 0,
         "total_referrals": len(records),
         "referrals": [
             {
                 "id": r.id,
                 "status": r.status,
-                "reward": r.reward,
-                "created_at": r.created_at.isoformat()
+                "reward": r.reward or 0,
+                "created_at": (
+                    r.created_at.isoformat()
+                    if r.created_at
+                    else None
+                )
+            }
+            for r in records
+        ]
+    })
+
+
+# =========================
+# DATABASE INITIALIZATION
+# =========================
+
+with app.app_context():
+    db.create_all()
+                "id": r.id,
+                "status": r.status,
+                "reward": r.reward or 0,
+                "created_at": (
+                    r.created_at.isoformat()
+                    if r.created_at
+                    else None
+                )
             }
             for r in records
         ]
